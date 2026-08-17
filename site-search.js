@@ -11,7 +11,7 @@
       label: "Page",
       title: "Home",
       url: "/",
-      keywords: ["aven", "home", "main", "landing", "disconnect"],
+      keywords: ["veylo", "home", "main", "landing"],
       weight: 120,
     },
     {
