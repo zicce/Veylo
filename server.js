@@ -1,5 +1,7 @@
 const http = require('http');
-const { readFileSync, existsSync, statSync } = require('fs');
+const {
+  readFileSync, existsSync, statSync, readdirSync,
+} = require('fs');
 const path = require('path');
 
 const PORT = Number(process.env.PORT) || 8000;
@@ -93,6 +95,37 @@ async function handleCreateCheckoutSession(req, res) {
   }
 }
 
+// Invision Community caches its "built" CSS/JS bundles on disk with the
+// version baked directly into the filename (e.g.
+// "341e...ff_framework.css@v=1a5add167f1747185117.css"), while the exported
+// HTML references them the normal way, as a "?v=" query string
+// ("341e...ff_framework.css?v=1a5add167f1747185118"). Query strings are
+// already stripped before we look the file up, and the two version numbers
+// don't even always match (IPS re-builds these on theme changes), so an
+// exact-filename lookup never finds them and every framework/theme
+// asset under uploads/css_built_*/ and uploads/javascript_*/ 404s. When the
+// exact path isn't found, fall back to a versioned sibling in the same
+// directory - the first (and normally only) file whose name starts with
+// "<requested filename>@v=".
+function findVersionedAsset(filePath) {
+  const dir = path.dirname(filePath);
+  const base = path.basename(filePath);
+  if (!base || !existsSync(dir)) {
+    return null;
+  }
+
+  let entries;
+  try {
+    entries = readdirSync(dir);
+  } catch {
+    return null;
+  }
+
+  const prefix = `${base}@v=`;
+  const match = entries.find((name) => name.startsWith(prefix));
+  return match ? path.join(dir, match) : null;
+}
+
 function safeResolvePath(rootDir, requestPath) {
   const decoded = decodeURIComponent(requestPath || '/');
   const cleanPath = decoded.split('?')[0].split('#')[0];
@@ -146,8 +179,16 @@ const server = http.createServer((req, res) => {
     const ext = path.extname(filePath).toLowerCase();
     const contentType = mimeTypes[ext] || 'application/octet-stream';
 
-    if (existsSync(filePath)) {
-      const content = readFileSync(filePath);
+    let servePath = filePath;
+    if (!existsSync(servePath)) {
+      const versionedPath = findVersionedAsset(servePath);
+      if (versionedPath) {
+        servePath = versionedPath;
+      }
+    }
+
+    if (existsSync(servePath)) {
+      const content = readFileSync(servePath);
       res.writeHead(200, { 'Content-Type': contentType });
       res.end(content);
       return;
