@@ -1,7 +1,7 @@
 {
-  "name": "kylo-website",
+  "name": "veylo-website",
   "version": "1.0.0",
-  "description": "Kylo.gg static website",
+  "description": "Veylo - Windows tweaks & PC optimization tools website",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,5 +9,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "stripe": "^17.0.0"
+  }
 }
