@@ -9,7 +9,11 @@ const PORT = Number(process.env.PORT) || 8000;
 // Stripe is only initialized if a secret key is configured. This lets the
 // static site keep working locally even before Stripe is wired up.
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
-const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID || '';
+const PLANS = {
+  '1-month': { label: '1 Month', amountCents: 2499 },
+  '3-months': { label: '3 Months', amountCents: 3999 },
+  lifetime: { label: 'Lifetime', amountCents: 7999 },
+};
 const SITE_URL = process.env.SITE_URL || 'https://veyloservices.com';
 
 let stripe = null;
@@ -64,24 +68,34 @@ function readBody(req) {
 async function handleCreateCheckoutSession(req, res) {
   if (!stripe) {
     sendJson(res, 500, {
-      error: 'Stripe is not configured. Set STRIPE_SECRET_KEY (and STRIPE_PRICE_ID) as environment variables.',
+      error: 'Stripe is not configured. Set STRIPE_SECRET_KEY as an environment variable.',
     });
     return;
   }
 
-  if (!STRIPE_PRICE_ID) {
-    sendJson(res, 500, { error: 'STRIPE_PRICE_ID is not configured.' });
-    return;
-  }
-
   try {
-    await readBody(req);
+    let requestedPlan = '';
+    try {
+      requestedPlan = JSON.parse(await readBody(req) || '{}').plan;
+    } catch {
+      requestedPlan = '';
+    }
+
+    const plan = PLANS[requestedPlan];
+    if (!plan) {
+      sendJson(res, 400, { error: 'Invalid plan.' });
+      return;
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: [
         {
-          price: STRIPE_PRICE_ID,
+          price_data: {
+            currency: 'eur',
+            unit_amount: plan.amountCents,
+            product_data: { name: `PC Optimizer Suite - ${plan.label}` },
+          },
           quantity: 1,
         },
       ],

@@ -226,6 +226,13 @@
 .dcInfoNav:hover .dcInfoNav_chevron,.dcInfoNav:focus-within .dcInfoNav_chevron{transform:rotate(0deg);}
 .dcInfoNav:hover > .dcInfoNav_toggle,.dcInfoNav:focus-within > .dcInfoNav_toggle,.dcInfoNav:hover > .dcInfoNav_toggle span,.dcInfoNav:focus-within > .dcInfoNav_toggle span,.dcInfoNav:hover > .dcInfoNav_toggle .dcInfoNav_chevron,.dcInfoNav:focus-within > .dcInfoNav_toggle .dcInfoNav_chevron{color:#fff !important;}
 .dcInfoNav_menu a:hover,.dcInfoNav_menu a:focus{color:#fd7a12 !important;}
+.headerRow_secondary{display:none !important;}
+.vyPlans{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0;}
+.vyPlan{flex:1 1 120px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 16px;background:#1a1d24;color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer;font-family:inherit;transition:border-color .2s ease,background .2s ease;}
+.vyPlan:hover,.vyPlan:focus-visible{border-color:#fd7a12;}
+.vyPlan_active{border-color:#fd7a12;background:rgba(253,122,18,0.12);}
+.vyPlan_name{font-size:14px;font-weight:500;opacity:.8;}
+.vyPlan_price{font-size:20px;font-weight:700;}
 </style>
 </head>
 	<body class="ipsApp ipsApp_front ipsJS_none ipsClearfix" data-controller="core.front.core.app"  data-message=""  data-pageapp="nexus" data-pagelocation="front" data-pagemodule="store" data-pagecontroller="product" data-pageid="24"   >
@@ -331,7 +338,7 @@
 
     <div class="ccNexusPackage-column ipsContained">
         <div class="ccNexusPackage__image">
-              <a href="../../../images/website-banner.png" class="cNexusProduct_primaryImage ipsContained" data-ipslightbox data-ipslightbox-group="product" data-ipsproductzoom><img src="../../../images/website-banner.png" class="ipsImage ipsImage_thumb"></a>
+              <a href="../../../images/pc-optimizer-product.png" class="cNexusProduct_primaryImage ipsContained" data-ipslightbox data-ipslightbox-group="product" data-ipsproductzoom><img src="../../../images/pc-optimizer-product.png" class="ipsImage ipsImage_thumb" alt="PC Optimizer Suite dashboard"></a>
         </div>
     </div>
 
@@ -352,16 +359,30 @@
 
       <div class="ccPackage_pricing">
         <span class="cNexusPrice ipsMargin_top">
-          <!-- TODO: set the real price before launch -->
-          <span data-role="price">&euro;XX.XX</span>
+          <span data-role="price" id="vyPrice">&euro;24.99</span>
         </span>
       </div>
 
       <div class="ccPackage_raw"></div>
 
+<div class="vyPlans" role="radiogroup" aria-label="Choose a plan">
+    <button type="button" class="vyPlan vyPlan_active" role="radio" aria-checked="true" data-plan="1-month" data-price="24.99">
+        <span class="vyPlan_name">1 Month</span>
+        <span class="vyPlan_price">&euro;24.99</span>
+    </button>
+    <button type="button" class="vyPlan" role="radio" aria-checked="false" data-plan="3-months" data-price="39.99">
+        <span class="vyPlan_name">3 Months</span>
+        <span class="vyPlan_price">&euro;39.99</span>
+    </button>
+    <button type="button" class="vyPlan" role="radio" aria-checked="false" data-plan="lifetime" data-price="79.99">
+        <span class="vyPlan_name">Lifetime</span>
+        <span class="vyPlan_price">&euro;79.99</span>
+    </button>
+</div>
+
 <div class="elCluster_pricing">
     <div class="elCluster_header" id="elCluster_quantity"></div>
-    <button id="stripeBuyNowBtn" type="button" class="ipsButton ipsButton_primary" data-price-placeholder="true">Buy Now</button>
+    <button id="stripeBuyNowBtn" type="button" class="ipsButton ipsButton_primary">Buy Now</button>
     <p id="stripeBuyStatus" class="ipsType_light" style="margin-top:8px; display:none;"></p>
 </div>
     </div>
@@ -477,7 +498,7 @@
                 	
                 	<a href="../../../"><img src="../../../images/website-banner.png" alt="Veylo" style="max-height:40px;width:auto;"></a>
                 
-                <p>Premium Windows tweaks and PC optimization tools. High-quality, reliable, and affordable. 24/7 support and instant delivery.</p>
+                <p>Your trusted source for Windows optimization, providing high-quality, reliable tools at unbeatable prices, with exceptional customer support. Optimize your PC with our comprehensive Windows tweaks and utilities. Our team of experts rigorously tests and updates each product to ensure cutting-edge features, superior security, and the ultimate system performance. Whether you're a tech enthusiast or just starting out, trust us to help you maximize your PC&apos;s potential. We prioritize quality, safety, and customer satisfaction, offering tools that are both effective and secure. Join thousands of happy users who optimize daily, achieving peak performance they once thought was impossible.</p>
               </div>
               <div class="cFooter_nav">
                 <ul class="ipsDataList ipsDataList_reducedSpacing">
@@ -499,7 +520,7 @@
 	
 	
 	
-		<li><a rel="nofollow noopener" href='https://discord.gg/4p5nC2ggSe' target='_blank'>Contact Us</a></li>
+		<li><a href='../../../contact/'>Contact Us</a></li>
 	
 	<li><a rel="nofollow" href='../../../cookies/'>Cookies</a></li>
 
@@ -712,14 +733,14 @@
     "sku": 401,
     "offers": {
         "@type": "Offer",
-        "price": "0.00",
+        "price": "24.99",
         "priceCurrency": "EUR",
         "seller": {
             "@type": "Organization",
             "name": "Veylo"
         }
     },
-    "image": "../../../images/website-banner.png"
+    "image": "https://veyloservices.com/images/pc-optimizer-product.png"
 }	
 </script>
 
@@ -833,6 +854,24 @@
 				return;
 			}
 
+			const priceEl = document.getElementById('vyPrice');
+			const planButtons = Array.from(document.querySelectorAll('.vyPlan'));
+			let selectedPlan = '1-month';
+
+			planButtons.forEach((btn) => {
+				btn.addEventListener('click', () => {
+					selectedPlan = btn.dataset.plan;
+					planButtons.forEach((other) => {
+						const active = other === btn;
+						other.classList.toggle('vyPlan_active', active);
+						other.setAttribute('aria-checked', String(active));
+					});
+					if (priceEl) {
+						priceEl.textContent = '\u20AC' + btn.dataset.price;
+					}
+				});
+			});
+
 			buyButton.addEventListener('click', async () => {
 				buyButton.disabled = true;
 				if (statusEl) {
@@ -841,7 +880,11 @@
 				}
 
 				try {
-					const response = await fetch('/api/create-checkout-session', { method: 'POST' });
+					const response = await fetch('/api/create-checkout-session', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ plan: selectedPlan }),
+					});
 					const payload = await response.json();
 
 					if (!response.ok || !payload.url) {
