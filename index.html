@@ -620,7 +620,7 @@
 		
 		<!--ipsQueryLog-->
 		<!--ipsCachingLog-->
-      	<script> $(".gs-gotop").click(function() { $('html, body').animate({ scrollTop: $("html").offset().top }, 800); }); </script>
+      	<script> document.querySelectorAll('.gs-gotop').forEach(function (btn) { btn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); }); }); </script>
     	
           <script>
             $(document).ready(function() {
